@@ -1,1 +1,145 @@
 
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hey GPT - SP AI</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;background:#080d18;color:white;
+ font-family:Arial,sans-serif;text-align:center;
+}
+header{
+ padding:25px;background:#111c30;
+ font-size:25px;font-weight:bold;
+}
+header span{color:#35a8ff}
+.container{padding:30px 18px}
+.circle{
+ width:170px;height:170px;border-radius:50%;
+ margin:35px auto;background:#142d4b;
+ display:flex;align-items:center;justify-content:center;
+ font-size:65px;box-shadow:0 0 35px #168cff55;
+}
+button{
+ border:0;border-radius:14px;padding:17px 25px;
+ background:#168cff;color:white;font-size:18px;
+ margin:10px;cursor:pointer;
+}
+button:active{background:#0756a0}
+input,select{
+ width:90%;padding:15px;margin:12px;
+ border-radius:12px;border:1px solid #456;
+ background:#152239;color:white;font-size:16px;
+}
+#result{
+ background:#142239;padding:20px;
+ margin:25px 0;border-radius:15px;
+ min-height:70px;line-height:1.6;
+}
+.small{color:#9db1ca;font-size:14px}
+</style>
+</head>
+<body>
+
+<header>⚡ SP <span>HEY GPT</span></header>
+
+<div class="container">
+<h2>तुमचा Personal AI Assistant</h2>
+<p class="small">Hello! मी तुमचा SP Voice Assistant आहे.</p>
+
+<div class="circle">🎙️</div>
+
+<button onclick="startListening()">🎤 बोलून विचारा</button>
+
+<input id="question" placeholder="इथे तुमचा प्रश्न लिहा">
+
+<button onclick="askText()">Send ➤</button>
+
+<select id="language">
+<option value="mr-IN">मराठी</option>
+<option value="hi-IN">हिंदी</option>
+<option value="en-IN">English</option>
+</select>
+
+<div id="result">नमस्कार! मी ऐकण्यासाठी तयार आहे.</div>
+
+<button onclick="stopSpeaking()">🔇 आवाज बंद</button>
+
+<p class="small">SP AI Voice Assistant | Version 1.0</p>
+</div>
+
+<script>
+const result=document.getElementById("result");
+const question=document.getElementById("question");
+
+function answer(text){
+ let q=text.toLowerCase();
+ let reply="तुम्ही म्हणालात: "+text+
+ ". मी तुमचे म्हणणे ऐकले आहे. पुढील आवृत्तीत AI उत्तरे जोडली जातील.";
+
+ if(q.includes("नमस्कार") || q.includes("hello")){
+ reply="नमस्कार! मी Hey GPT आहे. तुम्हाला कशी मदत करू?";
+ }
+ else if(q.includes("नाव")){
+ reply="माझे नाव SP Hey GPT आहे.";
+ }
+ else if(q.includes("वेळ")){
+ reply="आत्ताची वेळ "+new Date().toLocaleTimeString("mr-IN")+" आहे.";
+ }
+ else if(q.includes("तारीख")){
+ reply="आजची तारीख "+new Date().toLocaleDateString("mr-IN")+" आहे.";
+ }
+
+ result.innerText=reply;
+ speak(reply);
+}
+
+function speak(text){
+ if(!("speechSynthesis" in window)){
+ result.innerText+=" आवाजाची सुविधा उपलब्ध नाही.";
+ return;
+ }
+ speechSynthesis.cancel();
+ let msg=new SpeechSynthesisUtterance(text);
+ msg.lang=document.getElementById("language").value;
+ speechSynthesis.speak(msg);
+}
+
+function askText(){
+ let text=question.value.trim();
+ if(text) answer(text);
+}
+
+function startListening(){
+ const SR=window.SpeechRecognition || window.webkitSpeechRecognition;
+ if(!SR){
+ result.innerText="या Browser मध्ये Voice Recognition उपलब्ध नाही. Chrome मध्ये प्रयत्न करा.";
+ return;
+ }
+ let recognition=new SR();
+ recognition.lang=document.getElementById("language").value;
+ recognition.interimResults=false;
+ recognition.onstart=()=>{
+ result.innerText="🎤 मी ऐकत आहे... बोला!";
+ };
+ recognition.onresult=(event)=>{
+ let text=event.results[0][0].transcript;
+ question.value=text;
+ answer(text);
+ };
+ recognition.onerror=()=>{
+ result.innerText="मायक्रोफोन परवानगी तपासा किंवा पुन्हा प्रयत्न करा.";
+ };
+ recognition.start();
+}
+
+function stopSpeaking(){
+ speechSynthesis.cancel();
+}
+</script>
+</body>
+</html>
+
